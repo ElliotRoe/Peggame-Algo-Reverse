@@ -1,5 +1,7 @@
 from BoardState import BoardState as BS
 from graphics import *
+from Peg import Peg
+import time
 
 
 class GM:
@@ -35,6 +37,7 @@ def main():
     c2.setWidth(10)
 
     c.draw(win)
+    time.sleep(2)
     c2.draw(win)
 
     win.getMouse()
