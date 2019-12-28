@@ -1,44 +1,74 @@
-from BoardState import BoardState as BS
+from BoardState import BoardState as BS, BoardState
 from graphics import *
 from Peg import Peg
 import time
+import numpy as np
 
 
 class GM:
-    def __init__(self):
-        self.message = "df"
 
-    def say(self, message):
-        self.message = message
-        print(self.message)
+    jumps = [[4,0],[-4,0],[2,2],[-2,2],[-2,-2],[2,-2]]
+
+    def __init__(self, win):
+        self.backgroundColor = color_rgb(207, 155, 242)
+        self.win = win
+        self.win.setBackground(self.backgroundColor)
+        pegs = [Peg(win.getWidth() / 2, 50, False),  # Top Row
+                Peg(win.getWidth() / 2 - 50, 50 + (400 / 4), False),
+                Peg(win.getWidth() / 2 + 50, 50 + (400 / 4), False),
+                Peg(win.getWidth() / 2 - (400 / 4), 50 + (400 / 4) * 2, False),
+                Peg(win.getWidth() / 2, 50 + (400 / 4) * 2, False),
+                Peg(win.getWidth() / 2 + (400 / 4), 50 + (400 / 4) * 2, False),
+                Peg(win.getWidth() / 2 - 150, 50 + (400 / 4) * 3, False),
+                Peg(win.getWidth() / 2 - 50, 50 + (400 / 4) * 3, False),
+                Peg(win.getWidth() / 2 + 50, 50 + (400 / 4) * 3, False),
+                Peg(win.getWidth() / 2 + 150, 50 + (400 / 4) * 3, False),
+                Peg(50, 450, False), Peg(50 + (400 / 4), 450, False), Peg(50 + (400 / 4) * 2, 450, False),
+                Peg(50 + (400 / 4) * 3, 450, False), Peg(50 + (400 / 4) * 4, 450, False)]  # Bottom Row
+
+    def jumpBack(self, startCoor, endCoor):
+        #Start coor is peg before jump back
+        startIndex = BS.coorToIndex(startCoor)
+        endIndex = BS.coorToIndex(endCoor)
+        middleCoor = [(startCoor[0]+endCoor[0])/2,(startCoor[1]+endCoor[1])/2]
+        middleIndex = BS.coorToIndex(middleCoor)
+
+        self.board.setPeg(startIndex, False)
+        self.board.setPeg(endIndex, True)
+        self.board.setPeg(middleIndex, True)
+
+        self.setBoardState(self.board)
+
+    def findJumps(self):
+        for i in self.board.getBoard().length:
+            if self.board.getBoard()[i]:
+                np.array(BS.indexToCoor(i))
+
+
+    def setBoardState(self, board):
+        self.board = board
+        i = 0
+        for peg in self.pegs:
+            peg.setActive(self.board.getPeg(i))
+            print(self.board.getPeg(i))
+            i = i+1
+
+    def displayBoard(self):
+        for peg in self.pegs:
+            peg.undraw()
+            peg.draw(self.win)
 
 
 def main():
-    activeColor = color_rgb(7,140,3)
-    emptyColor = color_rgb(242, 5, 5)
-    outlineColor = color_rgb(242, 226, 5)
+    win = GraphWin("Peg Board", 500, 500)
+    initBoard = BoardState([True, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
 
-    rad = 20
+    game = GM(win)
+    game.displayBoard()
+    game.setBoardState(initBoard)
 
-    print("test")
-    win = GraphWin("My Circle", 500, 500)
-    win.setBackground(color_rgb(207, 155, 242))
-
-    pt = Point(win.getHeight()/2,win.getWidth()/2)
-    c = Circle(pt, rad)
-    c.setFill(activeColor)
-    c.setOutline(outlineColor)
-    c.setWidth(10)
-
-    pt2 = Point(pt.getX(),pt.getY()+40)
-    c2 = Circle(pt2,rad)
-    c2.setFill(emptyColor)
-    c2.setOutline(outlineColor)
-    c2.setWidth(10)
-
-    c.draw(win)
-    time.sleep(2)
-    c2.draw(win)
+    time.sleep(1)
+    game.jumpBack([4,4],[2,2])
 
     win.getMouse()
     win.close()
